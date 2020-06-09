@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- The contents of this file will be loaded for arcgis webadaptor -->
+<Context>
+	<Resources className="org.apache.catalina.webresources.StandardRoot">     
+        <PreResources className="org.apache.catalina.webresources.DirResourceSet"
+            base="/opt/tomcat/filter/lib"
+            webAppMount="/WEB-INF/lib" />
+			
+		<PreResources className="org.apache.catalina.webresources.DirResourceSet"
+            base="/opt/tomcat/filter/conf_arcgis"
+            webAppMount="/WEB-INF/classes" />
+    </Resources>
+</Context>

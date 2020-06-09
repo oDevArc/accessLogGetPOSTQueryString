@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!-- Note:  A "Server" is not itself a "Container", so you may not
+     define subcomponents such as "Valves" at this level.
+     Documentation at /docs/config/server.html
+ -->
+<Server port="8005" shutdown="SHUTDOWN">
+  <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
+  <!-- Security listener. Documentation at /docs/config/listeners.html
+  <Listener className="org.apache.catalina.security.SecurityListener" />
+  -->
+  <!--APR library loader. Documentation at /docs/apr.html -->
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+  <!-- Prevent memory leaks due to use of particular java/javax APIs-->
+  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+  <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+
+  <!-- Global JNDI resources
+       Documentation at /docs/jndi-resources-howto.html
+  -->
+  <GlobalNamingResources>
+    <!-- Editable user database that can also be used by
+         UserDatabaseRealm to authenticate users
+    -->
+    <Resource name="UserDatabase" auth="Container"
+              type="org.apache.catalina.UserDatabase"
+              description="User database that can be updated and saved"
+              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+              pathname="conf/tomcat-users.xml" />
+  </GlobalNamingResources>
+
+  <!-- A "Service" is a collection of one or more "Connectors" that share
+       a single "Container" Note:  A "Service" is not itself a "Container",
+       so you may not define subcomponents such as "Valves" at this level.
+       Documentation at /docs/config/service.html
+   -->
+  <Service name="Catalina">
+
+    <!--The connectors can use a shared executor, you can define one or more named thread pools-->
+    <!--
+    <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"
+        maxThreads="150" minSpareThreads="4"/>
+    -->
+
+
+    <!-- A "Connector" represents an endpoint by which requests are received
+         and responses are returned. Documentation at :
+         Java HTTP Connector: /docs/config/http.html
+         Java AJP  Connector: /docs/config/ajp.html
+         APR (HTTP/AJP) Connector: /docs/apr.html
+         Define a non-SSL/TLS HTTP/1.1 Connector on port 8080
+    -->
+    <Connector port="80" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="443" />
+    <!-- A "Connector" using the shared thread pool-->
+    <!--
+    <Connector executor="tomcatThreadPool"
+               port="80" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="443" />
+    -->
+    <!-- Define a SSL/TLS HTTP/1.1 Connector on port 8443
+         This connector uses the NIO implementation. The default
+         SSLImplementation will depend on the presence of the APR/native
+         library and the useOpenSSL attribute of the
+         AprLifecycleListener.
+         Either JSSE or OpenSSL style configuration may be used regardless of
+         the SSLImplementation selected. JSSE style configuration is used below.
+    -->
+    <!--
+    <Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+               maxThreads="150" SSLEnabled="true">
+        <SSLHostConfig>
+            <Certificate certificateKeystoreFile="conf/localhost-rsa.jks"
+                         type="RSA" />
+        </SSLHostConfig>
+    </Connector>
+    -->
+    <!-- Define a SSL/TLS HTTP/1.1 Connector on port 8443 with HTTP/2
+         This connector uses the APR/native implementation which always uses
+         OpenSSL for TLS.
+         Either JSSE or OpenSSL style configuration may be used. OpenSSL style
+         configuration is used below.
+    -->
+    <!--
+    <Connector port="8443" protocol="org.apache.coyote.http11.Http11AprProtocol"
+               maxThreads="150" SSLEnabled="true" >
+        <UpgradeProtocol className="org.apache.coyote.http2.Http2Protocol" />
+        <SSLHostConfig>
+            <Certificate certificateKeyFile="conf/localhost-rsa-key.pem"
+                         certificateFile="conf/localhost-rsa-cert.pem"
+                         certificateChainFile="conf/localhost-rsa-chain.pem"
+                         type="RSA" />
+        </SSLHostConfig>
+    </Connector>
+    -->
+
+    
+	<!-- Configuration HTTPS pour portal.esri.lan -->
+	<Connector port="443" maxHttpHeaderSize="8192" maxThreads="150" minSpareThreads="25" maxSpareThreads="75" enableLookups="false" disableUploadTimeout="true" acceptCount="100" scheme="https" secure="true" SSLEnabled="true" clientAuth="false" sslProtocol="TLS" keystoreFile="conf/cute.esrifrance.net_2ans.pfx" keystorePass="jesepa" keystoreType="PKCS12"/>
+
+	<!-- Define an AJP 1.3 Connector on port 8009 -->
+    <Connector port="8009" protocol="AJP/1.3" redirectPort="443" />
+
+
+    <!-- An Engine represents the entry point (within Catalina) that processes
+         every request.  The Engine implementation for Tomcat stand alone
+         analyzes the HTTP headers included with the request, and passes them
+         on to the appropriate Host (virtual host).
+         Documentation at /docs/config/engine.html -->
+
+    <!-- You should set jvmRoute to support load-balancing via AJP ie :
+    <Engine name="Catalina" defaultHost="localhost" jvmRoute="jvm1">
+    -->
+    <Engine name="Catalina" defaultHost="localhost">
+
+      <!--For clustering, please take a look at documentation at:
+          /docs/cluster-howto.html  (simple how to)
+          /docs/config/cluster.html (reference documentation) -->
+      <!--
+      <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"/>
+      -->
+
+      <!-- Use the LockOutRealm to prevent attempts to guess user passwords
+           via a brute-force attack -->
+      <Realm className="org.apache.catalina.realm.LockOutRealm">
+        <!-- This Realm uses the UserDatabase configured in the global JNDI
+             resources under the key "UserDatabase".  Any edits
+             that are performed against this UserDatabase are immediately
+             available for use by the Realm.  -->
+        <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+               resourceName="UserDatabase"/>
+      </Realm>
+
+      <Host name="localhost"  appBase="webapps"
+            unpackWARs="true" autoDeploy="true">
+
+        <!-- SingleSignOn valve, share authentication between web applications
+             Documentation at: /docs/config/valve.html -->
+        <!--
+        <Valve className="org.apache.catalina.authenticator.SingleSignOn" />
+        -->
+
+        <!-- Access log processes all example.
+             Documentation at: /docs/config/valve.html
+             Note: The pattern used is equivalent to using pattern="common" -->
+	<!-- VERSION STANDARD
+	<Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" prefix="localhost_access_log" suffix=".txt" pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+	-->
+	<!-- Logs customized by Odlp ! https://tomcat.apache.org/tomcat-9.0-doc/config/valve.html#Access_Logging -->
+
+	<!--     %a - Remote IP address
+		%A - Local IP address
+		%b - Bytes sent, excluding HTTP headers, or '-' if zero
+		%B - Bytes sent, excluding HTTP headers
+		%h - Remote host name (or IP address if enableLookups for the connector is false)
+		%H - Request protocol
+		%l - Remote logical username from identd (always returns '-')
+		%m - Request method (GET, POST, etc.)
+		%p - Local port on which this request was received. See also %{xxx}p below.
+		%q - Query string (prepended with a '?' if it exists)
+		%r - First line of the request (method and request URI)
+		%s - HTTP status code of the response
+		%S - User session ID
+		%t - Date and time, in Common Log Format
+		%u - Remote user that was authenticated (if any), else '-'
+		%U - Requested URL path
+		%v - Local server name
+		%D - Time taken to process the request, in millis
+		%T - Time taken to process the request, in seconds
+		%F - Time taken to commit the response, in millis
+		%I - Current request thread name (can compare later with stacktraces)
+		%X - Connection status when response is completed:
+			X = Connection aborted before the response completed.
+			+ = Connection may be kept alive after the response is sent.
+			- = Connection will be closed after the response is sent.
+			
+		There is also support to write information incoming or outgoing headers, cookies, session or request attributes and special timestamp formats. It is modeled after the Apache HTTP Server log configuration syntax. Each of them can be used multiple times with different xxx keys:
+		%{xxx}i write value of incoming header with name xxx
+		%{xxx}o write value of outgoing header with name xxx
+		%{xxx}c write value of cookie with name xxx
+		%{xxx}r write value of ServletRequest attribute with name xxx
+		%{xxx}s write value of HttpSession attribute with name xxx
+		%{xxx}p write local (server) port (xxx==local) or remote (client) port (xxx=remote)
+		%{xxx}t write timestamp at the end of the request formatted using the enhanced SimpleDateFormat pattern xxx
+
+		 -->
+		<!-- version qui contient à la fois requete GET avec parameters qui sont désormais dans le POST DATA 
+		<Valve className="org.apache.catalina.valves.AccessLogValve" conditionUnless="donotlog_attribute" directory="logs" fileDateFormat="_yyyyMMdd" pattern="${hostname}::%a::%{X-Forwarded-For}i::%m::%s::%{yyyy-MM-dd HH:mm:ss}t::%r::%{User-Agent}i::%{Referer}i::%b::%D::%{request_parameters}r" prefix="${hostname}_accesslog" renameOnRotate="true" resolveHosts="false" suffix=".log"/>
+	 -->
+		<!-- <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs/comptage" fileDateFormat="_yyyyMMdd" pattern="${hostname}::%a::%{X-Forwarded-For}i::%m::%s::%{yyyy-MM-dd HH:mm:ss}t::%U::%{User-Agent}i::%{Referer}i::%b::%D::%{request_parameters}r" prefix="${hostname}_accesslog" renameOnRotate="true" resolveHosts="false" suffix=".log" encoding="UTF-8"/> -->
+		<!-- <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs/comptage" fileDateFormat="_yyyyMMdd" pattern="CuTe::%a::%m::%s::%{yyyy-MM-dd HH:mm:ss}t::%U::%{Referer}i::%q::%{User-Agent}i::%b::%D::%{agstoken}c::%{request_parameters}r" prefix="CuTe_accesslog" renameOnRotate="true" resolveHosts="false" suffix=".log" encoding="UTF-8"/>--> 
+		<!-- <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs/comptage" fileDateFormat="_yyyyMMdd" pattern="%m::%s::%{yyyy-MM-dd HH:mm:ss}t::%U::%{request_parameters}r" prefix="CuTe_accesslog" renameOnRotate="true" resolveHosts="false" suffix=".log" encoding="UTF-8"/> --> 
+		<!-- <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs/comptage" fileDateFormat="_yyyyMMdd" pattern="${hostname}::%a::%m::%s::%{yyyy-MM-dd HH:mm:ss}t::%r::%U::%{User-Agent}i::%b::%D::%{request_parameters}r" prefix="${hostname}_accesslog" renameOnRotate="true" resolveHosts="false" suffix=".log" encoding="UTF-8"/> -->
+<Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" fileDateFormat="_yyyyMMdd" pattern="%m::%s::%{yyyy-MM-dd HH:mm:ss}t::%{request_parameters}r" prefix="${hostname}_accesslog" renameOnRotate="true" resolveHosts="false" suffix=".log" encoding="UTF-8"/> 
+      </Host>
+    </Engine>
+  </Service>
+</Server>
