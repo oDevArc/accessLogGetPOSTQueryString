@@ -1,3 +1,4 @@
+// oDevArc june 2020
 // package is intentionnaly a short namespace
 package accessLogGetPOSTQueryString;
 
