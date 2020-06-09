@@ -35,7 +35,7 @@ the content of the file is :
 ```
 2) note that you must update the Tomcat launch script : `/opt/tomcat/bin/catalina.sh` update near the line `251` you can set the HOSTNAME variable AND the DEBUG parameters (port 8081) for Eclipse debugging : 
 
-```xml
+```
 # -----------------------------------------------------------------------------------------------
 # hostname variable used by access logging with filter to get POST & GET parameters /accessLogGetPOSTQueryString
 JAVA_OPTS="$JAVA_OPTS -Dhostname=CuTe"
