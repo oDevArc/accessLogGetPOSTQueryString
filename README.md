@@ -20,12 +20,13 @@ All the files are in [./quickStart/](./quickStart/) folder :
 2. next call the script : `./spawn-ags-container.sh` you have a output like this : 
 
 ```bash
-NErDy:quickStart odlp$ ./spawn-ags-container.sh
+NErDy:quickStart odevarc$ ./spawn-ags-container.sh
 clean the container $CONTAINER_NAME
 testTomcat9
 testTomcat9
 TOMCAT_FOLDER_ROOT
-user for path creation is : odlp
+odevarc.net
+user for path creation is : odevarc
 ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤  START  ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 
 	Script parameters are : testTomcat9 80 true
@@ -37,21 +38,24 @@ user for path creation is : odlp
 	Defining folder path to put volumes folders which ones MUST not exist otherwise container content will be replaced by local host folder content
 
 
-	Create the network $NETWORK_NAME inly if it does not exist
+	Create the network odevarc.net only if it does not exist
 
 	Create specific network to allow all containers to communicate :
 
 
-Error response from daemon: network with name odevarc.net already exists
+55d05e051bf28af575d01fe378133ca4766d712fb68753ab9c9817a7790c27d0
 
 
 	Subnet for new network odevarc.net is :
-	172.18.0.0/16
+	172.19.0.0/16
 
 
-	Create the new container testTomcat9 from the image with binding in folder /Users/odlp/docker-prod/volumes/tomcat-9/directories/80
-848c4ff5f71e986f9d50329b10e83c805abd627c20d74726d21f46a5ae1c4702
-Local path is cd /Users/odlp/Dropbox/Work/Programmation/Java/accessLogGetPOSTQueryString/quickStart
+	Create the new container testTomcat9 from the image with binding in folder /Users/odevarc/docker-prod/volumes/tomcat-9/directories/80
+19bd91f803a37972af8d3722ef0b6f91fe6c61f6dc38fa5f5124a4d22495bdc9
+	On Linux (not on Mac OSX) you can view Tomcat Catalina home folder in :
+
+/var/lib/docker/volumes/TOMCAT_FOLDER_ROOT/_data
+You can come back to this point by typing : cd /Users/odevarc/Dropbox/Work/Programmation/Java/accessLogGetPOSTQueryString/quickStart
 
 
 	Waiting 20 seconds until Tomcat is starting ...
@@ -66,7 +70,7 @@ ETag: W/"622-1591798169000"
 Last-Modified: Wed, 10 Jun 2020 14:09:29 GMT
 Content-Type: text/html
 Content-Length: 622
-Date: Wed, 10 Jun 2020 19:17:25 GMT
+Date: Thu, 11 Jun 2020 07:55:32 GMT
 
 
 
@@ -104,7 +108,6 @@ Date: Wed, 10 Jun 2020 19:17:25 GMT
     └── spring-web-5.1.5.RELEASE.jar
 
 2 directories, 7 files
-failed to resize tty, using default size
 /usr/local/tomcat/webapps
 ├── ROOT
 │   └── index.html
@@ -117,6 +120,9 @@ Updating server.xml file
 	Put the python script to update the server.xml file container :
 
 
+	Put the hostname in Catalina start script /bin/catalina.sh so the accesslog file have the hostname in filename:
+
+
 	Restart Tomcat to activate GET/POST parameters tracing in access logs :
 
 Using CATALINA_BASE:   /usr/local/tomcat
@@ -125,22 +131,25 @@ Using CATALINA_TMPDIR: /usr/local/tomcat/temp
 Using JRE_HOME:        /usr/local/openjdk-11
 Using CLASSPATH:       /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar
 NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+OCI runtime exec failed: exec failed: cannot exec a container that has stopped: unknown
 
 	Show the new access log after a GET request with parameters :
 
-GET::404::2020-06-10 19:17:51::?where=CITY_NAME%3D%27Cuiaba%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnDistinctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=json
-failed to resize tty, using default size
+GET::404::2020-06-11 07:55:54::?where=CITY_NAME%3D%27Cuiaba%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnDistinctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=json
 
 	Show the new access log after a POST request with parameters :
 
-GET::404::2020-06-10 19:17:51::?where=CITY_NAME%3D%27Cuiaba%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnDistinctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=json
-POST::404::2020-06-10 19:18:02::?where=CITY_NAME%3D%27Cuiaba%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnjsoninctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=json
+GET::404::2020-06-11 07:55:54::?where=CITY_NAME%3D%27Cuiaba%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnDistinctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=json
+POST::404::2020-06-11 07:56:05::?where=CITY_NAME%3D%27Cuiaba%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnjsoninctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=json
 
 	Show the state of docker container :
 
-Container testTomcat9 [848c4ff5f71e] sur image tomcat:9
-on ports : 0.0.0.0:80->8080/tcp | taille  32.8kB (virtual 705MB)
+Container testTomcat9 [19bd91f803a3] on image tomcat:9
+on ports : 0.0.0.0:80->8080/tcp | size  32.8kB (virtual 705MB)
 with size :  32.8kB (virtual 705MB)
+	On Linux (not on Mac OSX) you can view Tomcat Catalina home folder in :
+
+/var/lib/docker/volumes/TOMCAT_FOLDER_ROOT/_data
 
 
 	You may access to internal container system via the next command :

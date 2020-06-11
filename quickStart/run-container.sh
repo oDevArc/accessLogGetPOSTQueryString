@@ -28,8 +28,8 @@ if [ "$CREATE_FOLDER_MAPPING" == true ]; then
 fi
 
 echo ''
-echo -e '\tCreate the network $NETWORK_NAME inly if it does not exist'
-if ! docker network ls | grep -q esrifrance.net; then
+echo -e "\tCreate the network $NETWORK_NAME only if it does not exist"
+if ! docker network ls | grep -q $NETWORK_NAME; then
 	echo ''
     echo -e '\tCreate specific network to allow all containers to communicate :\n\n'
 	docker network create $NETWORK_NAME
@@ -83,13 +83,10 @@ docker exec -t $CONTAINER_NAME /bin/bash -c "tree /usr/local/tomcat/conf"
 docker exec -t $CONTAINER_NAME /bin/bash -c "tree /usr/local/tomcat/filter"
 docker exec -t $CONTAINER_NAME /bin/bash -c "tree /usr/local/tomcat/webapps"
 
-
-
 echo 'Updating server.xml file'
 docker exec -t $CONTAINER_NAME /bin/bash -c 'sed -i "s/<Valve className=\"org.apache.catalina.valves.AccessLogValve\" directory=\"logs\"//g" /usr/local/tomcat/conf/server.xml'
 docker exec -t $CONTAINER_NAME /bin/bash -c 'sed -i "s/prefix=\"localhost_access_log\" suffix=\".txt\"//g" /usr/local/tomcat/conf/server.xml'
 docker exec -t $CONTAINER_NAME /bin/bash -c 'sed -i "s/pattern=\"%h %l %u %t &quot;%r&quot; %s %b\" \/>/NEW_ACCESSLOG_CONFIG/g" /usr/local/tomcat/conf/server.xml'
-
 
 # be aware to NOT put tabs or spaces on the begining of lines in the multiline section """ 
 # be aware to NOT put space AFTER end of doc EOF
@@ -140,7 +137,7 @@ with open(fname + '.orig', 'rt') as fin, open(fname, 'wt') as fout:
 \t%{xxx}t write timestamp at the end of the request formatted using the enhanced SimpleDateFormat pattern xxx
 \t-->
 
-\t<Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" fileDateFormat="_yyyyMMdd" pattern="%m::%s::%{yyyy-MM-dd HH:mm:ss}t::%{request_parameters}r" prefix="_accesslog_withGetPOSTQueryString" renameOnRotate="true" resolveHosts="false" suffix=".log" encoding="UTF-8"/>
+\t<Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" fileDateFormat="_yyyyMMdd" pattern="%m::%s::%{yyyy-MM-dd HH:mm:ss}t::%{request_parameters}r" prefix="${hostname}_accesslog_withGetPOSTQueryString" renameOnRotate="true" resolveHosts="false" suffix=".log" encoding="UTF-8"/>
 
 \t<!-- 
 \tOTHER pattern examples :
@@ -161,6 +158,14 @@ docker cp update_docker_container_tomcat_server_xml_file.py $CONTAINER_NAME:/usr
 #docker exec -t $CONTAINER_NAME /bin/bash -c "cat /usr/local/tomcat/conf/server.xml"
 docker exec -t $CONTAINER_NAME /bin/bash -c "cd /usr/local/tomcat/conf/; python update_docker_container_tomcat_server_xml_file.py"
 #docker exec -t $CONTAINER_NAME /bin/bash -c "cat /usr/local/tomcat/conf/server.xml"
+
+# This config doesn't work : but I don't know why ?!
+# Adding -Dhostname=testTomcat9 to JAVA_OPTS should be used for accesslog file creation with hostname in
+echo ''
+echo -e '\tPut the hostname in Catalina start script /bin/catalina.sh so the accesslog file have the hostname in filename:\n'
+docker exec -t $CONTAINER_NAME /bin/bash -c 'sed -i "s/JAVA_OPTS=\"\$JAVA_OPTS -Djava.protocol.handler.pkgs=org.apache.catalina.webresources\"/JAVA_OPTS=\"\$JAVA_OPTS -Djava.protocol.handler.pkgs=org.apache.catalina.webresources\"\n\n# --------------------------------------------------------------------------------------------------------------------\n# Catalina script customized by oDevArc\n# hostname variable used by access logging with filter to get POST \& GET parameters accessLogGetPOSTQueryString\nJAVA_OPTS=\"\$JAVA_OPTS -Dhostname=`hostname --short`\"\n# If needed DEBUG in Eclipse Java IDE\n#JAVA_OPTS=\"\$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8081\"\n# --------------------------------------------------------------------------------------------------------------------\n\n/g" /usr/local/tomcat/bin/catalina.sh'
+
+
 echo ''
 echo -e '\tRestart Tomcat to activate GET/POST parameters tracing in access logs :\n'
 docker exec -t $CONTAINER_NAME /bin/bash -c "/usr/local/tomcat/bin/shutdown.sh"
@@ -173,12 +178,16 @@ echo -e '\tShow the new access log after a GET request with parameters :\n'
 curl 'http://localhost/arcgis/rest/services/SampleWorldCities/MapServer/0/query?where=CITY_NAME%3D%27Cuiaba%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnDistinctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=json' -H 'User-Agent: cURL' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.8,fr;q=0.5,fr-FR;q=0.3' -H 'Connection: keep-alive' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache'  -s > /dev/null
 sleep 10
 docker exec -t $CONTAINER_NAME /bin/bash -c "tail /usr/local/tomcat/logs/_accesslog_withGetPOSTQueryString.log"
+# If hostname variable has worked this is the way to find the access log filename
+#docker exec -t $CONTAINER_NAME /bin/bash -c "tail /usr/local/tomcat/logs/${CONTAINER_NAME}_accesslog_withGetPOSTQueryString.log"
 
 echo ''
 echo -e '\tShow the new access log after a POST request with parameters :\n'
 curl 'http://localhost/arcgis/rest/services/SampleWorldCities/MapServer/0/query' -H 'User-Agent: cURL' -H 'Content-Type: application/x-www-form-urlencoded' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' --data 'where=CITY_NAME%3D%27Cuiaba%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnjsoninctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=json' -s > /dev/null
 sleep 10
 docker exec -t $CONTAINER_NAME /bin/bash -c "tail /usr/local/tomcat/logs/_accesslog_withGetPOSTQueryString.log"
+# If hostname variable has worked this is the way to find the access log filename
+#docker exec -t $CONTAINER_NAME /bin/bash -c "tail /usr/local/tomcat/logs/${hostname}_accesslog_withGetPOSTQueryString.log"
 
 
 echo ''
