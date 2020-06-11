@@ -46,7 +46,10 @@ if [ "$CREATE_FOLDER_MAPPING" == true ]; then
     echo -e "\tCreate the new container $CONTAINER_NAME from the image with binding in folder $TOMCAT_FOLDER_ROOT"
     docker container run --name $CONTAINER_NAME --hostname "$CONTAINER_NAME.$NETWORK_NAME"  --restart=always -p ${EXTERNAL_PORT}:8080 -d --mount 'type=volume,src=TOMCAT_FOLDER_ROOT,dst=/usr/local/tomcat' $IMAGE_NAME
     #docker container run --name $CONTAINER_NAME --hostname "$CONTAINER_NAME.$NETWORK_NAME"  --restart=always -p ${EXTERNAL_PORT}:8080 -d -v $TOMCAT_FOLDER_ROOT:/usr/local/tomcat/logs $IMAGE_NAME
-    echo -e "Local path is cd $PWD"
+    
+    echo -e '\tOn Linux (not on Mac OSX) you can view Tomcat Catalina home folder in :\n'
+    docker inspect --format '{{ (index .Mounts 0).Source }}' $CONTAINER_NAME
+    echo -e "You can come back to this point by typing : cd $PWD"
 else
     echo ''
     echo -e "\tCreate the new container $CONTAINER_NAME from the image without host folder binding"
@@ -180,9 +183,11 @@ docker exec -t $CONTAINER_NAME /bin/bash -c "tail /usr/local/tomcat/logs/_access
 
 echo ''
 echo -e '\tShow the state of docker container :\n'
-docker ps --filter name=$CONTAINER_NAME --format "Container {{.Names}} [{{.ID}}] sur image {{.Image}}" 
-docker ps --filter name=$CONTAINER_NAME --format " on ports : {{.Ports}} | taille  {{.Size}}" 
+docker ps --filter name=$CONTAINER_NAME --format "Container {{.Names}} [{{.ID}}] on image {{.Image}}" 
+docker ps --filter name=$CONTAINER_NAME --format " on ports : {{.Ports}} | size  {{.Size}}" 
 docker ps --filter name=$CONTAINER_NAME --format " with size :  {{.Size}}" 
+echo -e '\tOn Linux (not on Mac OSX) you can view Tomcat Catalina home folder in :\n'
+docker inspect --format '{{ (index .Mounts 0).Source }}' $CONTAINER_NAME
 echo ''
 
 echo ''
