@@ -156,7 +156,8 @@ with size :  32.8kB (virtual 705MB)
 	docker exec -it testTomcat9  /bin/bash
 ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤  END  ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 ```
-
+3. you can follow the log file directly from the host (on Linux not on Mac OSX) by typing : `sudo tail -f /var/lib/docker/volumes/TOMCAT_FOLDER_ROOT/_data/logs/_accesslog_withGetPOSTQueryString.log`
+4. send a POST request to validate another time : `curl 'http://localhost/arcgis/rest/services/SampleWorldCities/MapServer/0/query' -H 'User-Agent: cURL' -H 'Content-Type: application/x-www-form-urlencoded' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' --data 'where=CITY_NAME%3D%27Cuiaba%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnjsoninctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=json' -s > /dev/null`
 
 
 ### "classic deployement" :
