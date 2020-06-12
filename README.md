@@ -1,5 +1,8 @@
 # accessLogGetPOSTQueryString
 
+## what For ?
+
+The situation is simple : you want to monitor, lookup, grab datas for data exploration/data science what is happenning on your Tomcat servers : by using this simple java code : you can keep trace of all GET and POST requests parameters by overring the standard ACCESS LOG machanism explain in Tomcat doc : [https://tomcat.apache.org/tomcat-9.0-doc/logging.html#Access_logging](https://tomcat.apache.org/tomcat-9.0-doc/logging.html#Access_logging) 
 
 ## summary
 
